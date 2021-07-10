@@ -93,7 +93,6 @@ export const GET_SUBGRAPHS_VERSIONS = `{
         id
         originalName
         ipfsHash
-        stakedTokens
         createdAt
         deniedAt
       }
