@@ -14,6 +14,7 @@ const config: Config = {
     notifyOn: [
       'DEPLOYED',
       // TODO: improve updated flow (show exact diff, etc)
+      // Comment line below to only receive notifications on DEPLOYED.
       'UPDATED',
       // 'DELETED'
     ]

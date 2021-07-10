@@ -13,6 +13,8 @@ Create a bot on discord and copy the credentials for the next step.
 Create a .env file based on the .env.example and put the credentials of your bot.
 You can find the channelId by activating the Discord Developer mode in settings > advanced.
 
+If you want to be notified only when a new subgraph deployment occurs you can comment `line 18 in src/configs/config.ts`
+
 If you want to be notified as soon as an event happens (not very useful for now IMO)
 instead of only when a deployment/version update occurs. You can change the query used `at line 45 in src/app.service.ts` with GET_SUBGRAPHS
 
