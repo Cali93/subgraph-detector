@@ -8,6 +8,6 @@ async function bootstrap() {
   app.enableCors();
   const theGraphService = app.select(AppModule).get(AppService, { strict: true });
   theGraphService.pollLatestSubgraphs();
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

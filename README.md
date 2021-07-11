@@ -59,4 +59,4 @@ If you like the idea and would like to see the project evolve, you can contact m
 
 ## License
 
-bot-detector is [MIT licensed](LICENSE).
+subgraph-detector is [MIT licensed](LICENSE).
