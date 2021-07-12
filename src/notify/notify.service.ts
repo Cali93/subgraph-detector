@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as Discord from 'discord.js';
+import Discord from 'discord.js';
+import stringify from 'json-stringify-pretty-compact';
 import { DiscordConfig } from '../configs/config.interface';
 
 export type NotifificationStatus = | 'DEPLOYED' | 'UPDATED' | 'DELETED'
@@ -28,7 +29,7 @@ export class NotifyService {
       .setDescription(`Subgraph ${options.status}`)
       .addFields(Object.entries(diff).map(([key, value]) => ({
         name: key,
-        value: typeof value !== "object" ? value || "" : this.codeBlock('json', JSON.stringify(value)),
+        value: typeof value !== "object" ? value || "" : this.codeBlock('json', stringify(value)),
         inline: typeof value !== "object"
       })))
     if (channel?.isText()) { return channel.send(embed) }
