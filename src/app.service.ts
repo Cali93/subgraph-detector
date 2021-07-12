@@ -7,7 +7,7 @@ import differenceWith from 'lodash.differencewith';
 import { NotifyService } from './notify/notify.service';
 import { GET_SUBGRAPHS, GET_SUBGRAPHS_VERSIONS } from './graphql/queries';
 import { ConfigService } from '@nestjs/config';
-import { DiscordConfig, TheGraphNetworkConfig } from './configs/config.interface';
+import { TheGraphNetworkConfig } from './configs/config.interface';
 
 @Injectable()
 export class AppService {
@@ -46,44 +46,42 @@ export class AppService {
           }
         }).pipe(
           retryWhen(e$ => e$.pipe(
-              // try again after 5 seconds
-              delay(5000),
-              // stop trying after 10 times
-              take(9)
+            // try again after 5 seconds
+            delay(5000),
+            // stop trying after 10 times
+            take(9)
           )
-          // still keep the observable alive if
-          // the first 10 times fail
-          // catchError(e => of(e))
-      )
-      )
-    )).pipe(distinctUntilChanged((prev, curr) => {
-      return isEqual(prev.data?.data?.subgraphs, curr.data?.data?.subgraphs);
-    })).subscribe(async data => {
-      const { subgraphs } = data.data.data;
-      // don't notify when the bot starts
-      if (currentSubgraphs.length === 0) {
-        currentSubgraphs.push(...subgraphs);
-      }
-      if (subgraphs) {
-        const diff = differenceWith(currentSubgraphs, subgraphs, isEqual);
-        console.log({inDiff: false, diff, currentSubgraphsCount: currentSubgraphs.length, subgraphsCount: subgraphs.length });
-        if (diff.length > 0) {
-          const status = currentSubgraphs.every(currSub =>
-            subgraphs.map(sub => sub.id).includes(currSub.id))
-              ? 'UPDATED'
-              : currentSubgraphs.length < subgraphs.length
-                ? 'DEPLOYED'
-                : 'DELETED' ;
-          console.log({status});
-          if (this.config.get<DiscordConfig>('discord').notifyOn.includes(status)){
-            await this.notify.notifyOnDiscordCuratorsChannel(diff, {
-              status
-            });
+            // still keep the observable alive if
+            // the first 10 times fail
+            // catchError(e => of(e))
+          )
+        )
+      )).pipe(distinctUntilChanged((_prev, curr) => {
+        return isEqual(currentSubgraphs, curr.data?.data?.subgraphs);
+      })).subscribe(async data => {
+        const { subgraphs } = data?.data?.data;
+        // don't notify when the bot starts
+        if (subgraphs) {
+          if (currentSubgraphs.length === 0) {
+            currentSubgraphs = subgraphs;
           }
-          console.log({ inDiff: true, currentSubgraphsCount: currentSubgraphs.length, subgraphsCount: subgraphs.length });
-          currentSubgraphs = subgraphs;
+          if (currentSubgraphs.length > 0) {
+            const diffs = differenceWith(subgraphs, currentSubgraphs, isEqual);
+            if (diffs.length > 0) {
+              const msgs = await Promise.all(
+                diffs.map(
+                  async (diff) => this.notify.notifyOnDiscordCuratorsChannel(diff, {
+                    status: currentSubgraphs.map(
+                      currentSubgraph => currentSubgraph.id
+                    ).includes(diff.id) ? 'UPDATED' : 'DEPLOYED'
+                  })
+                )
+              )
+              currentSubgraphs = subgraphs;
+              console.log({ msgs });
+            }
+          }
         }
-      }
-    })
+      })
   }
 }

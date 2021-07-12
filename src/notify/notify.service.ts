@@ -17,7 +17,7 @@ export class NotifyService {
     this.discordClient.login(botToken);
   }
 
-  public async notifyOnDiscordCuratorsChannel(diffs: Record<string, any>[], options: {
+  public async notifyOnDiscordCuratorsChannel(diff: Record<string, any>, options: {
     status: NotifificationStatus
   }) {
     const { channelId } = this.config.get<DiscordConfig>('discord');
@@ -26,11 +26,11 @@ export class NotifyService {
       .setTitle('Alert !')
       .setColor(options.status === 'DEPLOYED' ? '#42f560' : options.status === 'UPDATED' ? '#f5e342' : '#ff3b3b')
       .setDescription(`Subgraph ${options.status}`)
-      .addFields(diffs.map(diff => Object.entries((diff)).map(([key, value]) => ({
+      .addFields(Object.entries(diff).map(([key, value]) => ({
         name: key,
-        value: typeof value !== "object" ? value : this.codeBlock('json', JSON.stringify(value)),
+        value: typeof value !== "object" ? value || "" : this.codeBlock('json', JSON.stringify(value)),
         inline: typeof value !== "object"
-      }))).flat())
+      })))
     if (channel?.isText()) { return channel.send(embed) }
   }
 
