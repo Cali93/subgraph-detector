@@ -82,6 +82,7 @@ export class AppService {
             }
           }
         }
+        return currentSubgraphs;
       })
   }
 }
