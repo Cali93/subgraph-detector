@@ -7,7 +7,7 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors();
   const theGraphService = app.select(AppModule).get(AppService, { strict: true });
-  theGraphService.pollLatestSubgraphs();
-  await app.listen(process.env.PORT || 3000);
+  theGraphService.pollLatestSubgraphs().subscribe();
+  await app.listen(process.env.PORT || 5555);
 }
 bootstrap();

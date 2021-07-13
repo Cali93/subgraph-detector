@@ -1,6 +1,6 @@
 import { HttpService, Injectable } from '@nestjs/common';
 import { Observable, timer } from 'rxjs';
-import { switchMap, distinctUntilChanged, retryWhen, delay, take } from 'rxjs/operators';
+import { switchMap, distinctUntilChanged, retryWhen, delay, take, tap } from 'rxjs/operators';
 import { AxiosResponse } from 'axios';
 import isEqual from 'lodash.isequal';
 import differenceWith from 'lodash.differencewith';
@@ -58,8 +58,8 @@ export class AppService {
         )
       )).pipe(distinctUntilChanged((_prev, curr) => {
         return isEqual(currentSubgraphs, curr.data?.data?.subgraphs);
-      })).subscribe(async data => {
-        const { subgraphs } = data?.data?.data;
+      })).pipe(tap(async data => {
+        const subgraphs = data?.data?.data?.subgraphs;
         // don't notify when the bot starts
         if (subgraphs) {
           if (currentSubgraphs.length === 0) {
@@ -82,6 +82,6 @@ export class AppService {
             }
           }
         }
-      })
+      }))
   }
 }
